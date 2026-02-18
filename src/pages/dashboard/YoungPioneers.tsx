@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import DashboardNav from "@/components/DashboardNav";
 import DashboardCard from "@/components/DashboardCard";
@@ -8,15 +8,16 @@ import { Code2, Cpu, BrainCircuit, MessageCircle, Trophy, Youtube } from "lucide
 
 export default function YoungPioneers() {
   const { user, language } = useAuth();
+  const navigate = useNavigate();
   if (!user) return <Navigate to="/signin" />;
 
   const cards = [
-    { icon: Code2, title: language === "en" ? "Computer Basics" : "कंप्यूटर मूल", desc: language === "en" ? "MS Excel, Word, HTML, CSS, Python & C++" : "एक्सेल, वर्ड, HTML, CSS, पायथन", gradient: "gradient-young" },
-    { icon: Cpu, title: language === "en" ? "Trending Tech" : "ट्रेंडिंग टेक", desc: language === "en" ? "AI, ML, Cybersecurity, Data Science, Cloud" : "AI, ML, साइबर सुरक्षा, डेटा साइंस", gradient: "gradient-young" },
-    { icon: Youtube, title: language === "en" ? "Video Tutorials" : "वीडियो ट्यूटोरियल", desc: language === "en" ? "Learn with curated YouTube videos" : "YouTube वीडियो से सीखें", gradient: "gradient-young" },
-    { icon: BrainCircuit, title: language === "en" ? "Quizzes & MCQs" : "क्विज़ और MCQ", desc: language === "en" ? "Test your knowledge with image-based quizzes" : "इमेज क्विज़ से ज्ञान जांचें", gradient: "gradient-young" },
-    { icon: Trophy, title: language === "en" ? "Progress & Badges" : "प्रगति और बैज", desc: language === "en" ? "Track your learning journey" : "अपनी सीखने की यात्रा ट्रैक करें", gradient: "gradient-young" },
-    { icon: MessageCircle, title: language === "en" ? "Mentoring Chat" : "मेंटरिंग चैट", desc: language === "en" ? "Anonymous advice from experienced women" : "अनुभवी महिलाओं से गुमनाम सलाह", gradient: "gradient-young" },
+    { icon: Code2, title: language === "en" ? "Computer Basics" : "कंप्यूटर मूल", desc: language === "en" ? "MS Excel, Word, HTML, CSS, Python & C++" : "एक्सेल, वर्ड, HTML, CSS, पायथन", gradient: "gradient-young", link: "/learning" },
+    { icon: Cpu, title: language === "en" ? "Trending Tech" : "ट्रेंडिंग टेक", desc: language === "en" ? "AI, ML, Cybersecurity, Data Science, Cloud" : "AI, ML, साइबर सुरक्षा, डेटा साइंस", gradient: "gradient-young", link: "/learning" },
+    { icon: Youtube, title: language === "en" ? "Video Tutorials" : "वीडियो ट्यूटोरियल", desc: language === "en" ? "Learn with curated YouTube videos" : "YouTube वीडियो से सीखें", gradient: "gradient-young", link: "/learning" },
+    { icon: BrainCircuit, title: language === "en" ? "Quizzes & MCQs" : "क्विज़ और MCQ", desc: language === "en" ? "Test your knowledge with image-based quizzes" : "इमेज क्विज़ से ज्ञान जांचें", gradient: "gradient-young", link: "/learning" },
+    { icon: Trophy, title: language === "en" ? "Progress & Badges" : "प्रगति और बैज", desc: language === "en" ? "Track your learning journey" : "अपनी सीखने की यात्रा ट्रैक करें", gradient: "gradient-young", link: "/learning" },
+    { icon: MessageCircle, title: language === "en" ? "Stories & Mentoring" : "कहानियां और मेंटरिंग", desc: language === "en" ? "Share & get advice from experienced women" : "अनुभवी महिलाओं से सलाह पाएं", gradient: "gradient-young", link: "/stories" },
   ];
 
   return (
@@ -33,7 +34,7 @@ export default function YoungPioneers() {
         </motion.div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {cards.map((card, i) => (
-            <DashboardCard key={i} icon={card.icon} title={card.title} description={card.desc} gradient={card.gradient} delay={i * 0.08} />
+            <DashboardCard key={i} icon={card.icon} title={card.title} description={card.desc} gradient={card.gradient} delay={i * 0.08} onClick={() => navigate(card.link)} />
           ))}
         </div>
       </main>
