@@ -10,6 +10,9 @@ import Signin from "./pages/Signin";
 import YoungPioneers from "./pages/dashboard/YoungPioneers";
 import MidAge from "./pages/dashboard/MidAge";
 import SilverAge from "./pages/dashboard/SilverAge";
+import StoriesPage from "./pages/StoriesPage";
+import ResumeAnalysis from "./pages/ResumeAnalysis";
+import LearningModules from "./pages/LearningModules";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +31,9 @@ const App = () => (
             <Route path="/dashboard/young" element={<YoungPioneers />} />
             <Route path="/dashboard/mid" element={<MidAge />} />
             <Route path="/dashboard/silver" element={<SilverAge />} />
+            <Route path="/stories" element={<StoriesPage />} />
+            <Route path="/resume-analysis" element={<ResumeAnalysis />} />
+            <Route path="/learning" element={<LearningModules />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -14,7 +14,136 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          age: number
+          age_group: string
+          created_at: string | null
+          email: string | null
+          id: string
+          language: string | null
+          nickname: string
+          user_id: string
+        }
+        Insert: {
+          age: number
+          age_group: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          language?: string | null
+          nickname: string
+          user_id: string
+        }
+        Update: {
+          age?: number
+          age_group?: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          language?: string | null
+          nickname?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stories: {
+        Row: {
+          age_group: string
+          content: string | null
+          created_at: string | null
+          id: string
+          likes_count: number | null
+          nickname: string
+          user_id: string
+          voice_url: string | null
+        }
+        Insert: {
+          age_group: string
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          likes_count?: number | null
+          nickname?: string
+          user_id: string
+          voice_url?: string | null
+        }
+        Update: {
+          age_group?: string
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          likes_count?: number | null
+          nickname?: string
+          user_id?: string
+          voice_url?: string | null
+        }
+        Relationships: []
+      }
+      story_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          nickname: string
+          story_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          nickname?: string
+          story_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          nickname?: string
+          story_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_comments_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          story_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          story_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          story_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_likes_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

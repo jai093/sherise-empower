@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import DashboardNav from "@/components/DashboardNav";
 import DashboardCard from "@/components/DashboardCard";
@@ -8,15 +8,16 @@ import { FileSearch, MapPin, Briefcase, Palette, MessageCircleHeart, Users } fro
 
 export default function MidAge() {
   const { user, language } = useAuth();
+  const navigate = useNavigate();
   if (!user) return <Navigate to="/signin" />;
 
   const cards = [
-    { icon: FileSearch, title: language === "en" ? "Resume Analysis" : "रिज़्यूमे विश्लेषण", desc: language === "en" ? "Upload resume, get AI skill gap report" : "रिज़्यूमे अपलोड करें, AI कौशल रिपोर्ट पाएं", gradient: "gradient-mid" },
-    { icon: MapPin, title: language === "en" ? "Career Roadmaps" : "करियर रोडमैप", desc: language === "en" ? "3-month & 6-month structured learning paths" : "3 और 6 महीने की संरचित योजनाएं", gradient: "gradient-mid" },
+    { icon: FileSearch, title: language === "en" ? "Resume Analysis" : "रिज़्यूमे विश्लेषण", desc: language === "en" ? "Upload resume, get AI skill gap report" : "रिज़्यूमे अपलोड करें, AI कौशल रिपोर्ट पाएं", gradient: "gradient-mid", link: "/resume-analysis" },
+    { icon: MapPin, title: language === "en" ? "Career Roadmaps" : "करियर रोडमैप", desc: language === "en" ? "3-month & 6-month structured learning paths" : "3 और 6 महीने की संरचित योजनाएं", gradient: "gradient-mid", link: "/resume-analysis" },
     { icon: Briefcase, title: language === "en" ? "Job Search" : "नौकरी खोज", desc: language === "en" ? "Women-friendly companies & opportunities" : "महिला-अनुकूल कंपनियां और अवसर", gradient: "gradient-mid" },
     { icon: Palette, title: language === "en" ? "Non-Tech Paths" : "गैर-तकनीकी रास्ते", desc: language === "en" ? "UI/UX, arts, cooking, finance & more" : "UI/UX, कला, खाना, वित्त और अधिक", gradient: "gradient-mid" },
-    { icon: MessageCircleHeart, title: language === "en" ? "Share Stories" : "कहानियां साझा करें", desc: language === "en" ? "Text or voice — inspire other women" : "टेक्स्ट या आवाज़ — महिलाओं को प्रेरित करें", gradient: "gradient-mid" },
-    { icon: Users, title: language === "en" ? "Mentoring" : "मेंटरिंग", desc: language === "en" ? "Connect with all age groups" : "सभी आयु वर्गों से जुड़ें", gradient: "gradient-mid" },
+    { icon: MessageCircleHeart, title: language === "en" ? "Share Stories" : "कहानियां साझा करें", desc: language === "en" ? "Text or voice — inspire other women" : "टेक्स्ट या आवाज़ — महिलाओं को प्रेरित करें", gradient: "gradient-mid", link: "/stories" },
+    { icon: Users, title: language === "en" ? "Mentoring" : "मेंटरिंग", desc: language === "en" ? "Connect with all age groups" : "सभी आयु वर्गों से जुड़ें", gradient: "gradient-mid", link: "/stories" },
   ];
 
   return (
@@ -33,7 +34,7 @@ export default function MidAge() {
         </motion.div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {cards.map((card, i) => (
-            <DashboardCard key={i} icon={card.icon} title={card.title} description={card.desc} gradient={card.gradient} delay={i * 0.08} />
+            <DashboardCard key={i} icon={card.icon} title={card.title} description={card.desc} gradient={card.gradient} delay={i * 0.08} onClick={card.link ? () => navigate(card.link) : undefined} />
           ))}
         </div>
       </main>
