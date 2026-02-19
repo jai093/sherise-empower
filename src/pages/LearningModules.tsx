@@ -4,16 +4,83 @@ import { Navigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import DashboardNav from "@/components/DashboardNav";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle, Code2, ChevronRight, RefreshCcw } from "lucide-react";
+import { ArrowLeft, CheckCircle, Code2, ChevronRight, RefreshCcw, Medal, Trophy, Star, Zap } from "lucide-react";
 import { modules as initialModules } from "@/data/learning-modules";
+
+interface Badge {
+  id: string;
+  name: string;
+  nameHi: string;
+  description: string;
+  descHi: string;
+  icon: any;
+  color: string;
+  condition: (completed: string[]) => boolean;
+}
+
+const BADGES: Badge[] = [
+  {
+    id: "tech-starter",
+    name: "Tech Starter",
+    nameHi: "टेक स्टार्टर",
+    description: "Complete your first module",
+    descHi: "अपना पहला मॉड्यूल पूरा करें",
+    icon: Star,
+    color: "text-yellow-500",
+    condition: (completed) => completed.length >= 1,
+  },
+  {
+    id: "code-ninja",
+    name: "Code Ninja",
+    nameHi: "कोड निंजा",
+    description: "Complete 3 modules",
+    descHi: "3 मॉड्यूल पूरे करें",
+    icon: Code2,
+    color: "text-blue-500",
+    condition: (completed) => completed.length >= 3,
+  },
+  {
+    id: "quiz-master",
+    name: "Quiz Master",
+    nameHi: "क्विज़ मास्टर",
+    description: "Complete 5 modules",
+    descHi: "5 मॉड्यूल पूरे करें",
+    icon: Zap,
+    color: "text-purple-500",
+    condition: (completed) => completed.length >= 5,
+  },
+  {
+    id: "champion",
+    name: "Champion",
+    nameHi: "चैंपियन",
+    description: "Complete all modules",
+    descHi: "सभी मॉड्यूल पूरे करें",
+    icon: Trophy,
+    color: "text-orange-500",
+    condition: (completed) => completed.length >= initialModules.length,
+  },
+];
 
 export default function LearningModules() {
   const { user, language } = useAuth();
   const [searchParams] = useSearchParams();
   const category = searchParams.get("category");
 
-  const [moduleList, setModuleList] = useState(initialModules);
+  // Initialize from localStorage or default
+  const [moduleList, setModuleList] = useState(() => {
+    const saved = localStorage.getItem("completedModules");
+    if (saved) {
+      const completedIds = JSON.parse(saved);
+      return initialModules.map(m => ({
+        ...m,
+        completed: completedIds.includes(m.id)
+      }));
+    }
+    return initialModules;
+  });
+
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
+  const [showBadges, setShowBadges] = useState(false);
 
   // Quiz state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -21,6 +88,12 @@ export default function LearningModules() {
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
+
+  // Sync to localStorage whenever moduleList changes
+  useEffect(() => {
+    const completedIds = moduleList.filter(m => m.completed).map(m => m.id);
+    localStorage.setItem("completedModules", JSON.stringify(completedIds));
+  }, [moduleList]);
 
   // Reset quiz when module changes
   useEffect(() => {
@@ -39,6 +112,9 @@ export default function LearningModules() {
 
   const activeModule = moduleList.find((m) => m.id === activeModuleId);
   const totalQuestions = activeModule?.questions.length || 0;
+
+  const completedCount = moduleList.filter(m => m.completed).length;
+  const completedIds = moduleList.filter(m => m.completed).map(m => m.id);
 
   // Handle module completion
   const handleQuizFinish = () => {
@@ -93,7 +169,40 @@ export default function LearningModules() {
                {language === "en" ? "Master the concepts with videos & quizzes" : "वीडियो और क्विज़ के साथ अवधारणाओं में महारत हासिल करें"}
             </p>
           </div>
+          <Button variant="outline" onClick={() => setShowBadges(!showBadges)} className="gap-2">
+            <Medal className="h-4 w-4 text-accent" />
+            {language === "en" ? "Badges" : "बैज"}
+          </Button>
         </div>
+
+        {/* Badges Section (Collapsible) */}
+        {showBadges && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            className="mb-8 bg-card border border-border rounded-xl p-6 shadow-card overflow-hidden"
+          >
+             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+               <Trophy className="h-5 w-5 text-yellow-500" />
+               {language === "en" ? "Your Achievements" : "आपकी उपलब्धियां"}
+             </h2>
+             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+               {BADGES.map((badge) => {
+                 const isUnlocked = badge.condition(completedIds);
+                 return (
+                   <div key={badge.id} className={`flex flex-col items-center text-center p-4 rounded-lg border ${isUnlocked ? "bg-accent/10 border-accent" : "bg-muted border-transparent grayscale opacity-70"}`}>
+                     <div className={`p-3 rounded-full mb-2 ${isUnlocked ? "bg-white shadow-sm" : "bg-gray-200"}`}>
+                       <badge.icon className={`h-8 w-8 ${isUnlocked ? badge.color : "text-gray-500"}`} />
+                     </div>
+                     <h3 className="font-bold text-sm">{language === "en" ? badge.name : badge.nameHi}</h3>
+                     <p className="text-xs text-muted-foreground">{language === "en" ? badge.description : badge.descHi}</p>
+                     {isUnlocked && <span className="mt-2 text-xs font-bold text-green-600">Unlocked!</span>}
+                   </div>
+                 );
+               })}
+             </div>
+          </motion.div>
+        )}
 
         {!activeModuleId ? (
           /* Module list */

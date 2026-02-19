@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { t } from "@/lib/i18n";
-import { Heart, MessageCircle, Share2, Mic, MicOff, Send, ArrowLeft } from "lucide-react";
+import { Heart, MessageCircle, Share2, Mic, MicOff, Send, ArrowLeft, Users, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -78,6 +78,15 @@ export default function StoriesPage() {
   const chunksRef = useRef<Blob[]>([]);
 
   const ageGroup = user?.ageGroup || "mid";
+
+  const getAgeLabel = (group: string) => {
+    switch(group) {
+      case "silver": return language === "en" ? "Silver Wisdom" : "सिल्वर विज़डम";
+      case "mid": return language === "en" ? "Mid-Career Pro" : "मिड-करियर प्रो";
+      case "young": return language === "en" ? "Young Pioneer" : "यंग पायनियर";
+      default: return "";
+    }
+  };
 
   const startRecording = async () => {
     try {
@@ -168,18 +177,29 @@ export default function StoriesPage() {
     <div className="min-h-screen bg-background">
       <DashboardNav ageGroup={ageGroup} />
       <main className="container max-w-2xl py-8">
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 mb-6">
           <Link to={`/dashboard/${ageGroup}`}>
             <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">
-              {language === "en" ? "Stories & Experiences" : "कहानियां और अनुभव"}
+            <h1 className="text-3xl font-display font-bold text-foreground flex items-center gap-2">
+              <Users className="h-8 w-8 text-primary" />
+              {language === "en" ? "Community Mentorship" : "सामुदायिक मेंटरशिप"}
             </h1>
             <p className="text-muted-foreground">
-              {language === "en" ? "Share anonymously, inspire freely" : "गुमनाम रूप से साझा करें, स्वतंत्र रूप से प्रेरित करें"}
+              {language === "en" ? "Connect & learn across generations" : "पीढ़ियों के पार जुड़ें और सीखें"}
             </p>
           </div>
+        </div>
+
+        {/* Global Feed Banner */}
+        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-xl border border-primary/20 mb-8 flex items-center gap-3">
+          <Sparkles className="h-6 w-6 text-primary flex-shrink-0" />
+          <p className="text-sm font-medium text-foreground">
+             {language === "en"
+               ? "You are viewing the global community feed. Advice from Silver Wisdom, Mid-Career Pros, and Young Pioneers is visible to everyone!"
+               : "आप वैश्विक समुदाय फ़ीड देख रहे हैं। सिल्वर विज़डम, मिड-करियर पेशेवरों और यंग पायनियर्स की सलाह सभी के लिए दृश्यमान है!"}
+          </p>
         </div>
 
         {/* Post new story */}
@@ -196,7 +216,7 @@ export default function StoriesPage() {
           />
           <div className="flex items-center gap-3">
             <Button variant="hero" onClick={postStory} disabled={!newStory.trim()}>
-              <Send className="h-4 w-4" /> {language === "en" ? "Share" : "साझा करें"}
+              <Send className="h-4 w-4" /> {language === "en" ? "Share to Community" : "समुदाय में साझा करें"}
             </Button>
             <Button
               variant={isRecording ? "destructive" : "outline"}
@@ -222,13 +242,20 @@ export default function StoriesPage() {
                 className="bg-card rounded-2xl p-6 shadow-card border border-border"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-primary-foreground ${
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-primary-foreground shadow-md ${
                       story.ageGroup === "young" ? "gradient-young" : story.ageGroup === "mid" ? "gradient-mid" : "gradient-silver"
                     }`}>
                       {story.nickname[0].toUpperCase()}
                     </div>
-                    <span className="font-semibold text-foreground">{story.nickname}</span>
+                    <div>
+                      <span className="font-semibold text-foreground block">{story.nickname}</span>
+                      <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full inline-block mt-0.5 ${
+                         story.ageGroup === "young" ? "bg-cyan-100 text-cyan-700" : story.ageGroup === "mid" ? "bg-purple-100 text-purple-700" : "bg-orange-100 text-orange-700"
+                      }`}>
+                         {getAgeLabel(story.ageGroup)}
+                      </span>
+                    </div>
                   </div>
                   <span className="text-xs text-muted-foreground">{story.createdAt}</span>
                 </div>
@@ -241,10 +268,10 @@ export default function StoriesPage() {
                   </audio>
                 )}
 
-                <div className="flex items-center gap-4 text-muted-foreground">
+                <div className="flex items-center gap-4 text-muted-foreground border-t border-border pt-4">
                   <button
                     onClick={() => toggleLike(story.id)}
-                    className={`flex items-center gap-1 text-sm transition-colors ${story.liked ? "text-primary" : "hover:text-primary"}`}
+                    className={`flex items-center gap-1.5 text-sm transition-colors ${story.liked ? "text-primary" : "hover:text-primary"}`}
                   >
                     <Heart className={`h-5 w-5 ${story.liked ? "fill-current" : ""}`} />
                     {story.likesCount}
@@ -255,12 +282,12 @@ export default function StoriesPage() {
                       next.has(story.id) ? next.delete(story.id) : next.add(story.id);
                       return next;
                     })}
-                    className="flex items-center gap-1 text-sm hover:text-primary transition-colors"
+                    className="flex items-center gap-1.5 text-sm hover:text-primary transition-colors"
                   >
                     <MessageCircle className="h-5 w-5" />
                     {story.comments.length}
                   </button>
-                  <button onClick={() => copyLink(story.id)} className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
+                  <button onClick={() => copyLink(story.id)} className="flex items-center gap-1.5 text-sm hover:text-primary transition-colors ml-auto">
                     <Share2 className="h-5 w-5" />
                   </button>
                 </div>
@@ -276,7 +303,7 @@ export default function StoriesPage() {
                     >
                       {story.comments.map((c) => (
                         <div key={c.id} className="flex gap-2">
-                          <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
+                          <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground flex-shrink-0">
                             {c.nickname[0]}
                           </div>
                           <div>
@@ -293,7 +320,7 @@ export default function StoriesPage() {
                           value={commentText[story.id] || ""}
                           onChange={(e) => setCommentText((prev) => ({ ...prev, [story.id]: e.target.value }))}
                           onKeyDown={(e) => e.key === "Enter" && addComment(story.id)}
-                          placeholder={language === "en" ? "Add a comment..." : "टिप्पणी जोड़ें..."}
+                          placeholder={language === "en" ? "Add a supportive comment..." : "टिप्पणी जोड़ें..."}
                           className="flex-1 h-9 px-3 rounded-lg border border-input bg-background text-sm"
                         />
                         <Button size="sm" variant="default" onClick={() => addComment(story.id)}>
