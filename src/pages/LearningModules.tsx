@@ -4,7 +4,7 @@ import { Navigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import DashboardNav from "@/components/DashboardNav";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle, Code2, ChevronRight, RefreshCcw, Medal, Trophy, Star, Zap } from "lucide-react";
+import { ArrowLeft, CheckCircle, Code2, ChevronRight, RefreshCcw, Medal, Trophy, Star, Zap, LucideIcon } from "lucide-react";
 import { modules as initialModules } from "@/data/learning-modules";
 
 interface Badge {
@@ -13,7 +13,7 @@ interface Badge {
   nameHi: string;
   description: string;
   descHi: string;
-  icon: any;
+  icon: LucideIcon;
   color: string;
   condition: (completed: string[]) => boolean;
 }

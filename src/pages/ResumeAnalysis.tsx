@@ -63,9 +63,9 @@ export default function ResumeAnalysis() {
       } else {
         throw new Error("No analysis returned");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast({ title: language === "en" ? "Analysis failed" : "विश्लेषण विफल", description: err.message, variant: "destructive" });
+      toast({ title: language === "en" ? "Analysis failed" : "विश्लेषण विफल", description: (err as Error).message || "Unknown error", variant: "destructive" });
     } finally {
       setIsAnalyzing(false);
     }
