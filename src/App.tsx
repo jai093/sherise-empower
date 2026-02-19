@@ -13,6 +13,8 @@ import SilverAge from "./pages/dashboard/SilverAge";
 import StoriesPage from "./pages/StoriesPage";
 import ResumeAnalysis from "./pages/ResumeAnalysis";
 import LearningModules from "./pages/LearningModules";
+import JobSearch from "./pages/JobSearch";
+import SilverTutorials from "./pages/SilverTutorials";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const App = () => (
             <Route path="/stories" element={<StoriesPage />} />
             <Route path="/resume-analysis" element={<ResumeAnalysis />} />
             <Route path="/learning" element={<LearningModules />} />
+            <Route path="/job-search" element={<JobSearch />} />
+            <Route path="/silver-tutorials" element={<SilverTutorials />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
