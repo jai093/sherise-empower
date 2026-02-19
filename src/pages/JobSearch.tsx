@@ -8,6 +8,7 @@ import DashboardNav from "@/components/DashboardNav";
 import { t } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
 import { Briefcase, MapPin, Clock, Building, Star, Search } from "lucide-react";
+import { toast } from "sonner";
 
 export default function JobSearch() {
   const { language } = useAuth();
@@ -118,7 +119,12 @@ export default function JobSearch() {
                 </CardContent>
                 <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
                   <span>{job.postedAt}</span>
-                  <Button size="sm">{t(language, "jobs.apply")}</Button>
+                  <Button
+                    size="sm"
+                    onClick={() => toast.success(language === "en" ? `Application sent for ${job.title} at ${job.company}` : `${job.company} में ${job.title} के लिए आवेदन भेजा गया`)}
+                  >
+                    {t(language, "jobs.apply")}
+                  </Button>
                 </CardFooter>
               </Card>
             ))

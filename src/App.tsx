@@ -15,6 +15,8 @@ import ResumeAnalysis from "./pages/ResumeAnalysis";
 import LearningModules from "./pages/LearningModules";
 import JobSearch from "./pages/JobSearch";
 import SilverTutorials from "./pages/SilverTutorials";
+import SosSafety from "./pages/SosSafety";
+import NonTechPaths from "./pages/NonTechPaths";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,8 @@ const App = () => (
             <Route path="/learning" element={<LearningModules />} />
             <Route path="/job-search" element={<JobSearch />} />
             <Route path="/silver-tutorials" element={<SilverTutorials />} />
+            <Route path="/sos-safety" element={<SosSafety />} />
+            <Route path="/non-tech-paths" element={<NonTechPaths />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

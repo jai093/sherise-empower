@@ -78,6 +78,20 @@ export const translations = {
       incorrectMessage: "Incorrect. Try again.",
       finish: "Finish Tutorial",
     },
+    sos: {
+      title: "SOS & Safety",
+      subtitle: "Emergency assistance and safety tips.",
+      emergencyContacts: "Emergency Contacts",
+      callNow: "Call Now",
+      safetyTips: "Safety Tips",
+    },
+    courses: {
+      title: "Non-Tech Career Paths",
+      subtitle: "Explore courses in UI/UX, Arts, Cooking, Finance & more.",
+      recommended: "Recommended for You",
+      enroll: "Enroll Now",
+      viewDetails: "View Details",
+    },
     footer: {
       privacy: "Privacy Policy",
       tagline: "Empowering Indian women, one step at a time.",
@@ -160,6 +174,20 @@ export const translations = {
       correctMessage: "सही है! बहुत अच्छे।",
       incorrectMessage: "गलत। पुनः प्रयास करें।",
       finish: "ट्यूटोरियल समाप्त करें",
+    },
+    sos: {
+      title: "SOS और सुरक्षा",
+      subtitle: "आपातकालीन सहायता और सुरक्षा सुझाव।",
+      emergencyContacts: "आपातकालीन संपर्क",
+      callNow: "अभी कॉल करें",
+      safetyTips: "सुरक्षा सुझाव",
+    },
+    courses: {
+      title: "गैर-तकनीकी करियर पथ",
+      subtitle: "UI/UX, कला, खाना बनाना, वित्त और अधिक में पाठ्यक्रम खोजें।",
+      recommended: "आपके लिए अनुशंसित",
+      enroll: "अभी नामांकन करें",
+      viewDetails: "विवरण देखें",
     },
     footer: {
       privacy: "गोपनीयता नीति",
