@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import { t } from "@/lib/i18n";
 import heroImage from "@/assets/hero-illustration.jpg";
+import FallingFlowers from "@/components/FallingFlowers";
 import {
   GraduationCap, FileSearch, MessageCircleHeart,
   Users, Shield, Languages,
@@ -25,11 +26,12 @@ const Index = () => {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <FallingFlowers />
       <LandingNav />
 
       {/* Hero */}
-      <section className="pt-28 pb-16 md:pt-36 md:pb-24">
+      <section className="pt-28 pb-16 md:pt-36 md:pb-24 relative z-10">
         <div className="container grid md:grid-cols-2 gap-10 items-center">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -68,7 +70,7 @@ const Index = () => {
       </section>
 
       {/* Features */}
-      <section id="features" className="py-16 md:py-24 bg-card/50">
+      <section id="features" className="py-16 md:py-24 bg-card/50 relative z-10">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -101,7 +103,7 @@ const Index = () => {
       </section>
 
       {/* Age Groups Preview */}
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24 relative z-10">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
