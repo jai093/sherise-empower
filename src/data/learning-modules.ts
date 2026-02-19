@@ -221,7 +221,7 @@ export const modules: Module[] = [
     <title>My First Page</title>
   </head>
   <body>
-    <h1>Hello, SheRise!</h1>
+    <h1>Hello, SHERISE!</h1>
     <p>I am learning HTML 🎉</p>
   </body>
 </html>`,

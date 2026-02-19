@@ -30,7 +30,7 @@ export const translations = {
       multilingualDesc: "Available in English & Hindi with voice-friendly navigation for all ages.",
     },
     auth: {
-      signupTitle: "Join SheRise",
+      signupTitle: "Join SHERISE",
       signupSubtitle: "Begin your empowerment journey",
       signinTitle: "Welcome Back",
       signinSubtitle: "Continue your journey",
@@ -127,7 +127,7 @@ export const translations = {
       multilingualDesc: "अंग्रेजी और हिंदी में उपलब्ध।",
     },
     auth: {
-      signupTitle: "SheRise से जुड़ें",
+      signupTitle: "SHERISE से जुड़ें",
       signupSubtitle: "अपनी सशक्तिकरण यात्रा शुरू करें",
       signinTitle: "वापस स्वागत है",
       signinSubtitle: "अपनी यात्रा जारी रखें",

@@ -34,7 +34,7 @@ export default function Signin() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-6">
             <Sparkles className="h-8 w-8 text-primary" />
-            <span className="text-3xl font-display font-bold gradient-hero-text">SheRise</span>
+            <span className="text-3xl font-display font-bold gradient-hero-text">SHERISE</span>
           </Link>
           <h1 className="text-3xl font-display font-bold text-foreground">{t(language, "auth.signinTitle")}</h1>
           <p className="text-muted-foreground mt-2">{t(language, "auth.signinSubtitle")}</p>
