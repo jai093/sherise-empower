@@ -2,12 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { t } from "@/lib/i18n";
-import { Heart, MessageCircle, Share2, Mic, MicOff, Send, ArrowLeft, Users, Sparkles, X, Play, Square } from "lucide-react";
+import { Heart, MessageCircle, Share2, Mic, MicOff, Send, ArrowLeft, Users, Sparkles, X, Play, Square, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import DashboardNav from "@/components/DashboardNav";
+import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Comment {
   id: string;
@@ -15,6 +18,8 @@ interface Comment {
   content: string;
   createdAt: string;
 }
+
+type StoryCategory = "achievement" | "failure" | "comeback" | "motivation" | "life_lesson" | "other";
 
 interface Story {
   id: string;
@@ -28,9 +33,10 @@ interface Story {
   comments: Comment[];
   createdAt: string;
   timestamp: number;
+  category: StoryCategory;
 }
 
-// Initial demo data (fallback if localStorage is empty)
+// Initial demo data
 const initialStories: Story[] = [
   {
     id: "1",
@@ -45,6 +51,7 @@ const initialStories: Story[] = [
     ],
     createdAt: "5h ago",
     timestamp: Date.now() - 18000000,
+    category: "achievement",
   },
   {
     id: "2",
@@ -57,6 +64,7 @@ const initialStories: Story[] = [
     comments: [],
     createdAt: "1d ago",
     timestamp: Date.now() - 86400000,
+    category: "life_lesson",
   },
   {
     id: "3",
@@ -71,16 +79,21 @@ const initialStories: Story[] = [
     ],
     createdAt: "8h ago",
     timestamp: Date.now() - 28800000,
+    category: "achievement",
   },
 ];
 
 const STORAGE_KEY = "sherise_stories_v1";
+
+const CATEGORIES: StoryCategory[] = ["achievement", "failure", "comeback", "motivation", "life_lesson"];
 
 export default function StoriesPage() {
   const { user, language } = useAuth();
   const { toast } = useToast();
   const [stories, setStories] = useState<Story[]>([]);
   const [newStory, setNewStory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<StoryCategory | undefined>(undefined);
+  const [filterCategory, setFilterCategory] = useState<StoryCategory | "all">("all");
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
@@ -89,6 +102,8 @@ export default function StoriesPage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { isListening, transcript, startListening, stopListening, resetTranscript, hasRecognition } = useSpeechRecognition();
 
   const ageGroup = user?.ageGroup || "mid";
 
@@ -114,6 +129,14 @@ export default function StoriesPage() {
     }
   }, [stories]);
 
+  // Handle Voice Input
+  useEffect(() => {
+    if (transcript) {
+      setNewStory((prev) => prev + (prev ? " " : "") + transcript);
+      resetTranscript();
+    }
+  }, [transcript, resetTranscript]);
+
   const getAgeLabel = (group: string) => {
     switch(group) {
       case "silver": return language === "en" ? "Silver Wisdom" : "सिल्वर विज़डम";
@@ -123,7 +146,18 @@ export default function StoriesPage() {
     }
   };
 
-  const startRecording = async () => {
+  const getCategoryLabel = (cat: string) => {
+    switch(cat) {
+      case "achievement": return t(language, "stories.filterAchievements");
+      case "failure": return t(language, "stories.filterFailures");
+      case "comeback": return t(language, "stories.filterComebacks");
+      case "motivation": return t(language, "stories.filterMotivation");
+      case "life_lesson": return t(language, "stories.filterLifeLessons");
+      default: return cat;
+    }
+  };
+
+  const startVoiceRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
@@ -133,7 +167,6 @@ export default function StoriesPage() {
 
       recorder.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        // Convert to Base64
         const reader = new FileReader();
         reader.readAsDataURL(blob);
         reader.onloadend = () => {
@@ -151,6 +184,7 @@ export default function StoriesPage() {
             comments: [],
             createdAt: language === "en" ? "Just now" : "अभी",
             timestamp: Date.now(),
+            category: selectedCategory,
           };
           setStories((prev) => [story, ...prev]);
           toast({ title: language === "en" ? "Voice note shared!" : "वॉइस नोट साझा!", description: "Your voice is now part of the community." });
@@ -166,11 +200,10 @@ export default function StoriesPage() {
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
 
-      // Timer for recording duration
       timerRef.current = setInterval(() => {
         setRecordingTime((prev) => {
-          if (prev >= 60) { // Limit to 60 seconds
-            stopRecording();
+          if (prev >= 60) {
+            stopVoiceRecording();
             return prev;
           }
           return prev + 1;
@@ -183,7 +216,7 @@ export default function StoriesPage() {
     }
   };
 
-  const stopRecording = () => {
+  const stopVoiceRecording = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       mediaRecorderRef.current.stop();
     }
@@ -202,9 +235,11 @@ export default function StoriesPage() {
       comments: [],
       createdAt: language === "en" ? "Just now" : "अभी",
       timestamp: Date.now(),
+      category: selectedCategory || "other",
     };
     setStories((prev) => [story, ...prev]);
     setNewStory("");
+    setSelectedCategory(undefined);
     toast({ title: language === "en" ? "Story shared!" : "कहानी साझा!", description: "Your experience has been posted." });
   };
 
@@ -243,6 +278,10 @@ export default function StoriesPage() {
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const filteredStories = filterCategory === "all"
+    ? stories
+    : stories.filter(s => s.category === filterCategory);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -291,6 +330,28 @@ export default function StoriesPage() {
           </p>
         </motion.div>
 
+        {/* Filters */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+          <Button
+            variant={filterCategory === "all" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterCategory("all")}
+          >
+            {t(language, "stories.filterAll")}
+          </Button>
+          {CATEGORIES.map(cat => (
+            <Button
+              key={cat}
+              variant={filterCategory === cat ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilterCategory(cat)}
+              className="whitespace-nowrap"
+            >
+              {getCategoryLabel(cat)}
+            </Button>
+          ))}
+        </div>
+
         {/* Post new story */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -311,22 +372,47 @@ export default function StoriesPage() {
             className="min-h-[100px] text-base mb-4 resize-none bg-muted/30 focus:bg-background transition-colors border-muted focus:border-primary"
           />
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+             <div className="flex items-center gap-2">
+                 {/* Category Selector */}
+                <Select value={selectedCategory} onValueChange={(v) => setSelectedCategory(v as StoryCategory)}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder={t(language, "stories.selectCategory")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="other">Other</SelectItem>
+                    {CATEGORIES.map(cat => (
+                      <SelectItem key={cat} value={cat}>{getCategoryLabel(cat)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+               {/* Speech to Text Button */}
+               {hasRecognition && (
+                 <Button
+                    variant={isListening ? "destructive" : "secondary"}
+                    size="icon"
+                    onClick={isListening ? stopListening : startListening}
+                    title={isListening ? t(language, "stories.stopSpeaking") : t(language, "stories.startSpeaking")}
+                 >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                 </Button>
+               )}
+            </div>
+
+            <div className="flex items-center gap-3">
                {isRecording && (
                  <span className="text-red-500 font-mono font-bold animate-pulse flex items-center gap-2 text-sm bg-red-100 px-2 py-1 rounded-md">
                    <span className="w-2 h-2 bg-red-500 rounded-full block"></span>
                    {formatTime(recordingTime)}
                  </span>
                )}
-            </div>
 
-            <div className="flex items-center gap-3">
                <Button
                 variant={isRecording ? "destructive" : "outline"}
-                onClick={isRecording ? stopRecording : startRecording}
+                onClick={isRecording ? stopVoiceRecording : startVoiceRecording}
                 className={`transition-all duration-300 ${isRecording ? "px-6" : ""}`}
-                disabled={newStory.length > 0} // Disable voice if text is present to avoid confusion, or allow both? Let's keep distinct for now.
+                disabled={newStory.length > 0}
               >
                 {isRecording ? <Square className="h-4 w-4 mr-2 fill-current" /> : <Mic className="h-4 w-4 mr-2" />}
                 {isRecording
@@ -337,7 +423,7 @@ export default function StoriesPage() {
               <Button
                 variant="hero"
                 onClick={postStory}
-                disabled={!newStory.trim() || isRecording}
+                disabled={!newStory.trim() && !isRecording} // Allow if recording or text
                 className="shadow-lg hover:shadow-primary/20"
               >
                 <Send className="h-4 w-4 mr-2" /> {language === "en" ? "Post" : "पोस्ट करें"}
@@ -349,7 +435,7 @@ export default function StoriesPage() {
         {/* Stories feed */}
         <div className="space-y-6">
           <AnimatePresence mode="popLayout">
-            {stories.map((story, i) => (
+            {filteredStories.map((story, i) => (
               <motion.div
                 key={story.id}
                 layout
@@ -368,11 +454,18 @@ export default function StoriesPage() {
                     </div>
                     <div>
                       <span className="font-bold text-foreground block text-lg">{story.nickname}</span>
-                      <span className={`text-[11px] uppercase font-bold px-2 py-0.5 rounded-full inline-block mt-0.5 border ${
-                         story.ageGroup === "young" ? "bg-cyan-50 border-cyan-200 text-cyan-700" : story.ageGroup === "mid" ? "bg-purple-50 border-purple-200 text-purple-700" : "bg-orange-50 border-orange-200 text-orange-700"
-                      }`}>
-                         {getAgeLabel(story.ageGroup)}
-                      </span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className={`text-[11px] uppercase font-bold px-2 py-0.5 rounded-full border ${
+                          story.ageGroup === "young" ? "bg-cyan-50 border-cyan-200 text-cyan-700" : story.ageGroup === "mid" ? "bg-purple-50 border-purple-200 text-purple-700" : "bg-orange-50 border-orange-200 text-orange-700"
+                        }`}>
+                          {getAgeLabel(story.ageGroup)}
+                        </span>
+                        {story.category && story.category !== "other" && (
+                          <Badge variant="outline" className="text-[10px] capitalize">
+                            {getCategoryLabel(story.category)}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">{story.createdAt}</span>
@@ -488,6 +581,11 @@ export default function StoriesPage() {
                 </AnimatePresence>
               </motion.div>
             ))}
+            {filteredStories.length === 0 && (
+              <div className="text-center py-10 text-muted-foreground">
+                 {t(language, "jobs.noResults")}
+              </div>
+            )}
           </AnimatePresence>
         </div>
       </main>
