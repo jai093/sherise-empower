@@ -15,7 +15,6 @@ export default function SilverAge() {
     { icon: ImageIcon, title: language === "en" ? "Image Tutorials" : "चित्र ट्यूटोरियल", desc: language === "en" ? "Learn with large images & screenshots" : "बड़ी तस्वीरों से सीखें", gradient: "gradient-silver", link: "/silver-tutorials" },
     { icon: Heart, title: language === "en" ? "SOS & Safety" : "SOS और सुरक्षा", desc: language === "en" ? "Emergency apps & safety basics" : "आपातकालीन ऐप और सुरक्षा", gradient: "gradient-silver", link: "/sos-safety" },
     { icon: BookHeart, title: language === "en" ? "Share Wisdom" : "ज्ञान साझा करें", desc: language === "en" ? "Share life experiences with younger women" : "युवा महिलाओं के साथ अनुभव साझा करें", gradient: "gradient-silver", link: "/stories" },
-    { icon: Users, title: language === "en" ? "Mentoring" : "मेंटरिंग", desc: language === "en" ? "Chat with younger generations" : "युवा पीढ़ी से बात करें", gradient: "gradient-silver", link: "/stories" },
   ];
 
   return (

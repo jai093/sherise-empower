@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth, getAgeGroup } from "@/lib/auth-context";
+import { useAuth } from "@/lib/auth-context";
 import { t } from "@/lib/i18n";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -17,11 +17,30 @@ export default function Signin() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Demo: accept any credentials, create a mid-age user
-    const demoUser = { nickname: "User", email: form.email, age: 25, ageGroup: getAgeGroup(25) as any };
-    login(demoUser);
-    toast({ title: language === "en" ? "Welcome back!" : "वापस स्वागत है!" });
-    navigate(`/dashboard/${demoUser.ageGroup}`);
+    const success = login({ nickname: "User", email: form.email, age: 0, ageGroup: "mid", password: form.password });
+
+    if (success) {
+      toast({ title: language === "en" ? "Welcome back!" : "वापस स्वागत है!" });
+      // Navigation is handled by ProtectedRoute/AuthContext side-effect or we can redirect to a default
+      // Ideally retrieve user to know where to go, or redirect to home and let AuthWrapper handle it.
+      // But we don't have the user object here immediately updated in context if it's async, but here it's sync.
+      // We can't get the updated user from context *immediately* in this render cycle.
+      // Let's rely on the fact that login returns true if successful.
+      // We need to know the ageGroup to redirect correctly.
+      // The login function in AuthContext (mock) finds the user.
+      // We should probably redirect to a generic dashboard and let it redirect, or update login to return the user.
+
+      // HACK for now: Read from localStorage directly or let the user act.
+      // Better: Update login to return User | null.
+      const savedUser = JSON.parse(localStorage.getItem("sherise_current_user") || "{}");
+      if (savedUser && savedUser.ageGroup) {
+          navigate(`/dashboard/${savedUser.ageGroup}`);
+      } else {
+          navigate("/");
+      }
+    } else {
+      toast({ title: language === "en" ? "Login failed" : "लॉगिन विफल", description: language === "en" ? "Invalid email or password" : "अमान्य ईमेल या पासवर्ड", variant: "destructive" });
+    }
   };
 
   return (

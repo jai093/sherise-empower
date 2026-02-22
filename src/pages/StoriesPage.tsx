@@ -37,51 +37,7 @@ interface Story {
 }
 
 // Initial demo data
-const initialStories: Story[] = [
-  {
-    id: "1",
-    nickname: "TechDidi",
-    content: "I started learning coding at 35 after a 10-year career break. Today, I work as a frontend developer! Never think it's too late. The journey was hard but every small step counted. 💪",
-    type: "text",
-    ageGroup: "mid",
-    likesCount: 24,
-    liked: false,
-    comments: [
-      { id: "c1", nickname: "CodeGirl", content: "So inspiring! I'm 28 and just starting — this gives me hope! 🙌", createdAt: "2h ago" },
-    ],
-    createdAt: "5h ago",
-    timestamp: Date.now() - 18000000,
-    category: "achievement",
-  },
-  {
-    id: "2",
-    nickname: "NaniWisdom",
-    content: "At 62, my granddaughter taught me WhatsApp video calling. Now I teach other seniors in my colony. Technology connects hearts across distances. ❤️",
-    type: "text",
-    ageGroup: "silver",
-    likesCount: 41,
-    liked: false,
-    comments: [],
-    createdAt: "1d ago",
-    timestamp: Date.now() - 86400000,
-    category: "life_lesson",
-  },
-  {
-    id: "3",
-    nickname: "FutureEngineer",
-    content: "Just completed my first Python project — a calculator app! It's small but I built it myself. Next goal: building a website! 🚀",
-    type: "text",
-    ageGroup: "young",
-    likesCount: 18,
-    liked: false,
-    comments: [
-      { id: "c2", nickname: "MentorAnjali", content: "Great start! Try building a to-do app next — it teaches state management!", createdAt: "3h ago" },
-    ],
-    createdAt: "8h ago",
-    timestamp: Date.now() - 28800000,
-    category: "achievement",
-  },
-];
+const initialStories: Story[] = [];
 
 const STORAGE_KEY = "sherise_stories_v1";
 
@@ -184,7 +140,7 @@ export default function StoriesPage() {
             comments: [],
             createdAt: language === "en" ? "Just now" : "अभी",
             timestamp: Date.now(),
-            category: selectedCategory,
+            category: selectedCategory || "other",
           };
           setStories((prev) => [story, ...prev]);
           toast({ title: language === "en" ? "Voice note shared!" : "वॉइस नोट साझा!", description: "Your voice is now part of the community." });

@@ -47,6 +47,7 @@ export default function DashboardNav({ ageGroup }: Props) {
           </div>
           <Button variant="ghost" size="icon" onClick={handleLogout} title={t(language, "nav.logout")}>
             <LogOut className="h-4 w-4" />
+            <span className="sr-only">Logout</span>
           </Button>
         </div>
       </div>
