@@ -39,7 +39,8 @@ interface Story {
 // Initial demo data
 const initialStories: Story[] = [];
 
-const STORAGE_KEY = "sherise_stories_v1";
+// Changed key to v2 to invalidate old static data seeded in v1
+const STORAGE_KEY = "sherise_stories_v2";
 
 const CATEGORIES: StoryCategory[] = ["achievement", "failure", "comeback", "motivation", "life_lesson"];
 
