@@ -30,7 +30,7 @@ export default function DashboardNav({ ageGroup }: Props) {
           <div className={`h-8 w-8 rounded-lg ${groupColors[ageGroup]} flex items-center justify-center`}>
             <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-xl font-display font-bold text-foreground">SheRise</span>
+          <span className="text-xl font-display font-bold text-foreground">SHERISE</span>
         </Link>
 
         <div className="flex items-center gap-3">
@@ -47,6 +47,7 @@ export default function DashboardNav({ ageGroup }: Props) {
           </div>
           <Button variant="ghost" size="icon" onClick={handleLogout} title={t(language, "nav.logout")}>
             <LogOut className="h-4 w-4" />
+            <span className="sr-only">Logout</span>
           </Button>
         </div>
       </div>

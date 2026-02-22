@@ -12,7 +12,7 @@ export default function LandingNav() {
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-2">
           <Sparkles className="h-7 w-7 text-primary" />
-          <span className="text-2xl font-display font-bold gradient-hero-text">SheRise</span>
+          <span className="text-2xl font-display font-bold gradient-hero-text">SHERISE</span>
         </Link>
 
         <div className="flex items-center gap-3">

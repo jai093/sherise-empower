@@ -1,185 +1,155 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import DashboardNav from "@/components/DashboardNav";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle, Play, Code2, ChevronRight } from "lucide-react";
+import { ArrowLeft, CheckCircle, Code2, ChevronRight, RefreshCcw, Medal, Trophy, Star, Zap, LucideIcon } from "lucide-react";
+import { modules as initialModules } from "@/data/learning-modules";
 
-interface Module {
+interface Badge {
   id: string;
-  title: string;
-  titleHi: string;
+  name: string;
+  nameHi: string;
   description: string;
   descHi: string;
-  videoId: string;
-  codeSnippet?: string;
-  quiz: {
-    question: string;
-    questionHi: string;
-    options: { text: string; image?: string; correct: boolean }[];
-  };
-  completed: boolean;
+  icon: LucideIcon;
+  color: string;
+  condition: (completed: string[]) => boolean;
 }
 
-const modules: Module[] = [
+const BADGES: Badge[] = [
   {
-    id: "html-basics",
-    title: "HTML Basics",
-    titleHi: "HTML मूल बातें",
-    description: "Learn the building blocks of the web — tags, elements, and your first webpage.",
-    descHi: "वेब की बुनियाद सीखें — टैग, एलिमेंट्स, और आपका पहला वेबपेज।",
-    videoId: "qz0aGYrrlhU",
-    codeSnippet: `<!DOCTYPE html>
-<html>
-  <head>
-    <title>My First Page</title>
-  </head>
-  <body>
-    <h1>Hello, SheRise!</h1>
-    <p>I am learning HTML 🎉</p>
-  </body>
-</html>`,
-    quiz: {
-      question: "Which tag is used for the largest heading?",
-      questionHi: "सबसे बड़ी हेडिंग के लिए कौन सा टैग उपयोग होता है?",
-      options: [
-        { text: "<h1>", correct: true },
-        { text: "<h6>", correct: false },
-        { text: "<p>", correct: false },
-        { text: "<head>", correct: false },
-      ],
-    },
-    completed: false,
+    id: "tech-starter",
+    name: "Tech Starter",
+    nameHi: "टेक स्टार्टर",
+    description: "Complete your first module",
+    descHi: "अपना पहला मॉड्यूल पूरा करें",
+    icon: Star,
+    color: "text-yellow-500",
+    condition: (completed) => completed.length >= 1,
   },
   {
-    id: "css-intro",
-    title: "CSS Styling",
-    titleHi: "CSS स्टाइलिंग",
-    description: "Make your pages beautiful with colors, fonts, and layouts.",
-    descHi: "रंगों, फॉन्ट्स और लेआउट के साथ अपने पेज सुंदर बनाएं।",
-    videoId: "1PnVor36_40",
-    codeSnippet: `/* style.css */
-body {
-  background-color: #fff5ee;
-  font-family: 'Arial', sans-serif;
-}
-
-h1 {
-  color: #d4622a;
-  text-align: center;
-}
-
-.card {
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}`,
-    quiz: {
-      question: "Which property changes the text color?",
-      questionHi: "कौन सी प्रॉपर्टी टेक्स्ट का रंग बदलती है?",
-      options: [
-        { text: "color", correct: true },
-        { text: "background-color", correct: false },
-        { text: "font-size", correct: false },
-        { text: "text-align", correct: false },
-      ],
-    },
-    completed: false,
+    id: "code-ninja",
+    name: "Code Ninja",
+    nameHi: "कोड निंजा",
+    description: "Complete 3 modules",
+    descHi: "3 मॉड्यूल पूरे करें",
+    icon: Code2,
+    color: "text-blue-500",
+    condition: (completed) => completed.length >= 3,
   },
   {
-    id: "python-intro",
-    title: "Python Basics",
-    titleHi: "पायथन मूल बातें",
-    description: "Start programming with Python — variables, print, and simple math.",
-    descHi: "पायथन के साथ प्रोग्रामिंग शुरू करें — वेरिएबल्स, प्रिंट, और गणित।",
-    videoId: "kqtD5dpn9C8",
-    codeSnippet: `# My first Python program
-name = "Priya"
-age = 16
-
-print(f"Hello, {name}!")
-print(f"You are {age} years old")
-
-# Simple calculation
-marks = [85, 92, 78, 95, 88]
-average = sum(marks) / len(marks)
-print(f"Average marks: {average}")`,
-    quiz: {
-      question: "What does print() do in Python?",
-      questionHi: "Python में print() क्या करता है?",
-      options: [
-        { text: "Displays output on screen", correct: true },
-        { text: "Creates a new file", correct: false },
-        { text: "Deletes a variable", correct: false },
-        { text: "Opens a browser", correct: false },
-      ],
-    },
-    completed: false,
+    id: "quiz-master",
+    name: "Quiz Master",
+    nameHi: "क्विज़ मास्टर",
+    description: "Complete 5 modules",
+    descHi: "5 मॉड्यूल पूरे करें",
+    icon: Zap,
+    color: "text-purple-500",
+    condition: (completed) => completed.length >= 5,
   },
   {
-    id: "ai-intro",
-    title: "What is AI?",
-    titleHi: "AI क्या है?",
-    description: "Introduction to Artificial Intelligence — how machines learn and think.",
-    descHi: "कृत्रिम बुद्धिमत्ता का परिचय — मशीनें कैसे सीखती और सोचती हैं।",
-    videoId: "ad79nYk2keg",
-    quiz: {
-      question: "AI stands for?",
-      questionHi: "AI का पूरा नाम है?",
-      options: [
-        { text: "Artificial Intelligence", correct: true },
-        { text: "Automatic Internet", correct: false },
-        { text: "Advanced Input", correct: false },
-        { text: "Audio Interface", correct: false },
-      ],
-    },
-    completed: false,
-  },
-  {
-    id: "cybersecurity",
-    title: "Cyber Safety",
-    titleHi: "साइबर सुरक्षा",
-    description: "Stay safe online — passwords, phishing, and privacy basics.",
-    descHi: "ऑनलाइन सुरक्षित रहें — पासवर्ड, फ़िशिंग, और गोपनीयता।",
-    videoId: "inWWhr5tnEA",
-    quiz: {
-      question: "Which is the safest password?",
-      questionHi: "कौन सा सबसे सुरक्षित पासवर्ड है?",
-      options: [
-        { text: "Pr!ya$2025#Str0ng", correct: true },
-        { text: "123456", correct: false },
-        { text: "password", correct: false },
-        { text: "priya123", correct: false },
-      ],
-    },
-    completed: false,
+    id: "champion",
+    name: "Champion",
+    nameHi: "चैंपियन",
+    description: "Complete all modules",
+    descHi: "सभी मॉड्यूल पूरे करें",
+    icon: Trophy,
+    color: "text-orange-500",
+    condition: (completed) => completed.length >= initialModules.length,
   },
 ];
 
 export default function LearningModules() {
   const { user, language } = useAuth();
-  const [moduleList, setModuleList] = useState(modules);
-  const [activeModule, setActiveModule] = useState<string | null>(null);
-  const [quizAnswers, setQuizAnswers] = useState<Record<string, number | null>>({});
-  const [quizSubmitted, setQuizSubmitted] = useState<Record<string, boolean>>({});
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get("category");
+
+  // Initialize from localStorage or default
+  const [moduleList, setModuleList] = useState(() => {
+    const saved = localStorage.getItem("completedModules");
+    if (saved) {
+      const completedIds = JSON.parse(saved);
+      return initialModules.map(m => ({
+        ...m,
+        completed: completedIds.includes(m.id)
+      }));
+    }
+    return initialModules;
+  });
+
+  const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
+  const [showBadges, setShowBadges] = useState(false);
+
+  // Quiz state
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
+  const [score, setScore] = useState(0);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+
+  // Sync to localStorage whenever moduleList changes
+  useEffect(() => {
+    const completedIds = moduleList.filter(m => m.completed).map(m => m.id);
+    localStorage.setItem("completedModules", JSON.stringify(completedIds));
+  }, [moduleList]);
+
+  // Reset quiz when module changes
+  useEffect(() => {
+    setCurrentQuestionIndex(0);
+    setSelectedOption(null);
+    setIsAnswerSubmitted(false);
+    setScore(0);
+    setQuizCompleted(false);
+  }, [activeModuleId]);
 
   if (!user) return <Navigate to="/signin" />;
 
-  const active = moduleList.find((m) => m.id === activeModule);
-  const completedCount = moduleList.filter((m) => m.completed).length;
+  const filteredModules = category
+    ? moduleList.filter((m) => m.category === category)
+    : moduleList;
 
-  const submitQuiz = (moduleId: string) => {
-    const mod = moduleList.find((m) => m.id === moduleId);
-    const answer = quizAnswers[moduleId];
-    if (!mod || answer === null || answer === undefined) return;
+  const activeModule = moduleList.find((m) => m.id === activeModuleId);
+  const totalQuestions = activeModule?.questions.length || 0;
 
-    setQuizSubmitted((prev) => ({ ...prev, [moduleId]: true }));
+  const completedCount = moduleList.filter(m => m.completed).length;
+  const completedIds = moduleList.filter(m => m.completed).map(m => m.id);
 
-    if (mod.quiz.options[answer].correct) {
+  // Handle module completion
+  const handleQuizFinish = () => {
+    if (activeModuleId && score >= Math.ceil(totalQuestions / 2)) {
       setModuleList((prev) =>
-        prev.map((m) => (m.id === moduleId ? { ...m, completed: true } : m))
+        prev.map((m) => (m.id === activeModuleId ? { ...m, completed: true } : m))
       );
+    }
+    setQuizCompleted(true);
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < totalQuestions - 1) {
+      setCurrentQuestionIndex((prev) => prev + 1);
+      setSelectedOption(null);
+      setIsAnswerSubmitted(false);
+    } else {
+      handleQuizFinish();
+    }
+  };
+
+  const submitAnswer = () => {
+    if (selectedOption === null || !activeModule) return;
+    setIsAnswerSubmitted(true);
+    if (activeModule.questions[currentQuestionIndex].options[selectedOption].correct) {
+      setScore((prev) => prev + 1);
+    }
+  };
+
+  const getPageTitle = () => {
+    switch(category) {
+      case "basics": return language === "en" ? "Computer Basics" : "कंप्यूटर मूल बातें";
+      case "coding": return language === "en" ? "Coding & Development" : "कोडिंग और विकास";
+      case "trending": return language === "en" ? "Trending Technologies" : "ट्रेंडिंग टेक्नोलॉजीज";
+      default: return language === "en" ? "Learning Modules" : "सीखने के मॉड्यूल";
     }
   };
 
@@ -193,38 +163,57 @@ export default function LearningModules() {
           </Link>
           <div className="flex-1">
             <h1 className="text-3xl font-display font-bold text-foreground">
-              🚀 {language === "en" ? "Learning Modules" : "सीखने के मॉड्यूल"}
+              🚀 {getPageTitle()}
             </h1>
             <p className="text-muted-foreground">
-              {completedCount}/{moduleList.length} {language === "en" ? "completed" : "पूर्ण"}
+               {language === "en" ? "Master the concepts with videos & quizzes" : "वीडियो और क्विज़ के साथ अवधारणाओं में महारत हासिल करें"}
             </p>
           </div>
+          <Button variant="outline" onClick={() => setShowBadges(!showBadges)} className="gap-2">
+            <Medal className="h-4 w-4 text-accent" />
+            {language === "en" ? "Badges" : "बैज"}
+          </Button>
         </div>
 
-        {/* Progress bar */}
-        <div className="bg-card rounded-xl p-4 shadow-card border border-border mb-8">
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-3 rounded-full bg-muted overflow-hidden">
-              <motion.div
-                className="h-full gradient-young rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${(completedCount / moduleList.length) * 100}%` }}
-              />
-            </div>
-            <span className="text-sm font-bold text-foreground">{Math.round((completedCount / moduleList.length) * 100)}%</span>
-          </div>
-        </div>
+        {/* Badges Section (Collapsible) */}
+        {showBadges && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            className="mb-8 bg-card border border-border rounded-xl p-6 shadow-card overflow-hidden"
+          >
+             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+               <Trophy className="h-5 w-5 text-yellow-500" />
+               {language === "en" ? "Your Achievements" : "आपकी उपलब्धियां"}
+             </h2>
+             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+               {BADGES.map((badge) => {
+                 const isUnlocked = badge.condition(completedIds);
+                 return (
+                   <div key={badge.id} className={`flex flex-col items-center text-center p-4 rounded-lg border ${isUnlocked ? "bg-accent/10 border-accent" : "bg-muted border-transparent grayscale opacity-70"}`}>
+                     <div className={`p-3 rounded-full mb-2 ${isUnlocked ? "bg-white shadow-sm" : "bg-gray-200"}`}>
+                       <badge.icon className={`h-8 w-8 ${isUnlocked ? badge.color : "text-gray-500"}`} />
+                     </div>
+                     <h3 className="font-bold text-sm">{language === "en" ? badge.name : badge.nameHi}</h3>
+                     <p className="text-xs text-muted-foreground">{language === "en" ? badge.description : badge.descHi}</p>
+                     {isUnlocked && <span className="mt-2 text-xs font-bold text-green-600">Unlocked!</span>}
+                   </div>
+                 );
+               })}
+             </div>
+          </motion.div>
+        )}
 
-        {!activeModule ? (
+        {!activeModuleId ? (
           /* Module list */
           <div className="space-y-3">
-            {moduleList.map((mod, i) => (
+            {filteredModules.map((mod, i) => (
               <motion.button
                 key={mod.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
-                onClick={() => setActiveModule(mod.id)}
+                onClick={() => setActiveModuleId(mod.id)}
                 className="w-full flex items-center gap-4 p-5 bg-card rounded-2xl shadow-card border border-border hover:shadow-warm hover:border-primary/20 transition-all text-left group"
               >
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold ${mod.completed ? "bg-accent text-accent-foreground" : "gradient-young text-primary-foreground"}`}>
@@ -241,26 +230,31 @@ export default function LearningModules() {
                 <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
               </motion.button>
             ))}
+            {filteredModules.length === 0 && (
+               <div className="text-center py-10 text-muted-foreground">
+                 {language === "en" ? "No modules found in this category." : "इस श्रेणी में कोई मॉड्यूल नहीं मिला।"}
+               </div>
+            )}
           </div>
-        ) : active ? (
+        ) : activeModule ? (
           /* Module detail */
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            <Button variant="ghost" onClick={() => { setActiveModule(null); setQuizSubmitted({}); }}>
-              <ArrowLeft className="h-4 w-4 mr-1" /> {language === "en" ? "Back to modules" : "मॉड्यूल पर वापस"}
+            <Button variant="ghost" onClick={() => setActiveModuleId(null)}>
+              <ArrowLeft className="h-4 w-4 mr-1" /> {language === "en" ? "Back to list" : "सूची पर वापस"}
             </Button>
 
             <h2 className="text-2xl font-display font-bold text-foreground">
-              {language === "en" ? active.title : active.titleHi}
+              {language === "en" ? activeModule.title : activeModule.titleHi}
             </h2>
             <p className="text-muted-foreground text-lg">
-              {language === "en" ? active.description : active.descHi}
+              {language === "en" ? activeModule.description : activeModule.descHi}
             </p>
 
             {/* YouTube Video */}
             <div className="rounded-2xl overflow-hidden shadow-card border border-border aspect-video">
               <iframe
-                src={`https://www.youtube.com/embed/${active.videoId}`}
-                title={active.title}
+                src={`https://www.youtube.com/embed/${activeModule.videoId}`}
+                title={activeModule.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="w-full h-full"
@@ -268,65 +262,114 @@ export default function LearningModules() {
             </div>
 
             {/* Code Snippet */}
-            {active.codeSnippet && (
+            {activeModule.codeSnippet && (
               <div className="rounded-2xl overflow-hidden border border-border">
                 <div className="bg-foreground/5 px-4 py-2 flex items-center gap-2 border-b border-border">
                   <Code2 className="h-4 w-4 text-primary" />
                   <span className="text-sm font-semibold text-foreground">{language === "en" ? "Code Example" : "कोड उदाहरण"}</span>
                 </div>
                 <pre className="p-4 bg-foreground/[0.03] overflow-x-auto text-sm leading-relaxed">
-                  <code className="text-foreground">{active.codeSnippet}</code>
+                  <code className="text-foreground">{activeModule.codeSnippet}</code>
                 </pre>
               </div>
             )}
 
-            {/* Quiz */}
+            {/* Quiz Section */}
             <div className="bg-card rounded-2xl p-6 shadow-card border border-border">
               <h3 className="text-lg font-display font-bold text-foreground mb-4">
-                🧠 {language === "en" ? "Quick Quiz" : "त्वरित क्विज़"}
+                🧠 {language === "en" ? "Quiz Time" : "क्विज़ का समय"}
               </h3>
-              <p className="text-foreground font-medium mb-4">
-                {language === "en" ? active.quiz.question : active.quiz.questionHi}
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {active.quiz.options.map((opt, i) => {
-                  const selected = quizAnswers[active.id] === i;
-                  const submitted = quizSubmitted[active.id];
-                  let borderClass = "border-border";
-                  if (submitted && selected) {
-                    borderClass = opt.correct ? "border-accent bg-accent/10" : "border-destructive bg-destructive/10";
-                  } else if (selected) {
-                    borderClass = "border-primary bg-primary/5";
-                  }
-                  return (
-                    <button
-                      key={i}
-                      onClick={() => !submitted && setQuizAnswers((prev) => ({ ...prev, [active.id]: i }))}
-                      className={`p-4 rounded-xl border-2 text-left font-medium transition-all ${borderClass} ${!submitted ? "hover:border-primary/50" : ""}`}
-                    >
-                      <span className="text-foreground">{opt.text}</span>
-                      {submitted && selected && (
-                        <span className="ml-2">{opt.correct ? "✅" : "❌"}</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-              {!quizSubmitted[active.id] ? (
-                <Button
-                  variant="hero"
-                  className="mt-4"
-                  disabled={quizAnswers[active.id] === null || quizAnswers[active.id] === undefined}
-                  onClick={() => submitQuiz(active.id)}
-                >
-                  {language === "en" ? "Submit Answer" : "उत्तर जमा करें"}
-                </Button>
+
+              {!quizCompleted ? (
+                <>
+                  <div className="flex justify-between text-sm text-muted-foreground mb-4">
+                    <span>{language === "en" ? "Question" : "प्रश्न"} {currentQuestionIndex + 1} / {totalQuestions}</span>
+                    <span>{language === "en" ? "Score" : "स्कोर"}: {score}</span>
+                  </div>
+
+                  <p className="text-foreground font-medium mb-4 text-lg">
+                    {language === "en"
+                      ? activeModule.questions[currentQuestionIndex].question
+                      : activeModule.questions[currentQuestionIndex].questionHi}
+                  </p>
+
+                  <div className="grid grid-cols-1 gap-3">
+                    {activeModule.questions[currentQuestionIndex].options.map((opt, i) => {
+                      let borderClass = "border-border";
+                      if (isAnswerSubmitted) {
+                        if (opt.correct) borderClass = "border-accent bg-accent/10";
+                        else if (selectedOption === i) borderClass = "border-destructive bg-destructive/10";
+                      } else if (selectedOption === i) {
+                        borderClass = "border-primary bg-primary/5";
+                      }
+
+                      return (
+                        <button
+                          key={i}
+                          disabled={isAnswerSubmitted}
+                          onClick={() => setSelectedOption(i)}
+                          className={`p-4 rounded-xl border-2 text-left font-medium transition-all ${borderClass} ${!isAnswerSubmitted ? "hover:border-primary/50" : ""}`}
+                        >
+                          <span className="text-foreground">{opt.text}</span>
+                          {isAnswerSubmitted && opt.correct && <span className="ml-2 float-right">✅</span>}
+                          {isAnswerSubmitted && !opt.correct && selectedOption === i && <span className="ml-2 float-right">❌</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-6">
+                    {!isAnswerSubmitted ? (
+                      <Button
+                        onClick={submitAnswer}
+                        disabled={selectedOption === null}
+                        className="w-full sm:w-auto"
+                      >
+                        {language === "en" ? "Check Answer" : "उत्तर जांचें"}
+                      </Button>
+                    ) : (
+                      <Button onClick={handleNextQuestion} className="w-full sm:w-auto">
+                        {currentQuestionIndex < totalQuestions - 1
+                          ? (language === "en" ? "Next Question" : "अगला प्रश्न")
+                          : (language === "en" ? "Finish Quiz" : "क्विज़ समाप्त करें")}
+                      </Button>
+                    )}
+                  </div>
+                </>
               ) : (
-                <p className={`mt-4 font-semibold ${active.quiz.options[quizAnswers[active.id]!].correct ? "text-accent" : "text-destructive"}`}>
-                  {active.quiz.options[quizAnswers[active.id]!].correct
-                    ? (language === "en" ? "🎉 Correct! Module completed!" : "🎉 सही! मॉड्यूल पूर्ण!")
-                    : (language === "en" ? "Try again! Review the video and retry." : "फिर से कोशिश करें!")}
-                </p>
+                <div className="text-center py-6">
+                  <h4 className="text-2xl font-bold mb-2">
+                    {language === "en" ? "Quiz Completed!" : "क्विज़ पूर्ण!"}
+                  </h4>
+                  <p className="text-lg text-muted-foreground mb-6">
+                    {language === "en" ? "You scored" : "आपने स्कोर किया"} {score} / {totalQuestions}
+                  </p>
+                  {score >= Math.ceil(totalQuestions / 2) ? (
+                    <div className="text-accent flex flex-col items-center gap-2">
+                      <CheckCircle className="h-12 w-12" />
+                      <span className="font-bold">{language === "en" ? "Great job! Module Passed." : "बहुत बढ़िया! मॉड्यूल पास हुआ।"}</span>
+                    </div>
+                  ) : (
+                    <div className="text-destructive flex flex-col items-center gap-2">
+                      <RefreshCcw className="h-12 w-12" />
+                      <span className="font-bold">{language === "en" ? "Keep practicing!" : "अभ्यास करते रहें!"}</span>
+                    </div>
+                  )}
+                  <div className="mt-6 flex justify-center gap-4">
+                     <Button variant="outline" onClick={() => {
+                        setCurrentQuestionIndex(0);
+                        setScore(0);
+                        setQuizCompleted(false);
+                        setSelectedOption(null);
+                        setIsAnswerSubmitted(false);
+                     }}>
+                        {language === "en" ? "Retry Quiz" : "फिर से क्विज़ करें"}
+                     </Button>
+                     <Button onClick={() => setActiveModuleId(null)}>
+                        {language === "en" ? "Back to Modules" : "मॉड्यूल पर वापस"}
+                     </Button>
+                  </div>
+                </div>
               )}
             </div>
           </motion.div>

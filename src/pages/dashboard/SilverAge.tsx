@@ -12,12 +12,9 @@ export default function SilverAge() {
   if (!user) return <Navigate to="/signin" />;
 
   const cards = [
-    { icon: ImageIcon, title: language === "en" ? "Image Tutorials" : "चित्र ट्यूटोरियल", desc: language === "en" ? "Learn with large images & screenshots" : "बड़ी तस्वीरों से सीखें", gradient: "gradient-silver" },
-    { icon: Phone, title: language === "en" ? "Video Calling" : "वीडियो कॉलिंग", desc: language === "en" ? "Step-by-step: how to video call" : "कदम दर कदम: वीडियो कॉल कैसे करें", gradient: "gradient-silver" },
-    { icon: Volume2, title: language === "en" ? "Voice Guide" : "आवाज़ गाइड", desc: language === "en" ? "Voice narration for every lesson" : "हर पाठ के लिए आवाज़ वर्णन", gradient: "gradient-silver" },
+    { icon: ImageIcon, title: language === "en" ? "Image Tutorials" : "चित्र ट्यूटोरियल", desc: language === "en" ? "Learn with large images & screenshots" : "बड़ी तस्वीरों से सीखें", gradient: "gradient-silver", link: "/silver-tutorials" },
+    { icon: Heart, title: language === "en" ? "SOS & Safety" : "SOS और सुरक्षा", desc: language === "en" ? "Emergency apps & safety basics" : "आपातकालीन ऐप और सुरक्षा", gradient: "gradient-silver", link: "/sos-safety" },
     { icon: BookHeart, title: language === "en" ? "Share Wisdom" : "ज्ञान साझा करें", desc: language === "en" ? "Share life experiences with younger women" : "युवा महिलाओं के साथ अनुभव साझा करें", gradient: "gradient-silver", link: "/stories" },
-    { icon: Heart, title: language === "en" ? "SOS & Safety" : "SOS और सुरक्षा", desc: language === "en" ? "Emergency apps & safety basics" : "आपातकालीन ऐप और सुरक्षा", gradient: "gradient-silver" },
-    { icon: Users, title: language === "en" ? "Mentoring" : "मेंटरिंग", desc: language === "en" ? "Chat with younger generations" : "युवा पीढ़ी से बात करें", gradient: "gradient-silver", link: "/stories" },
   ];
 
   return (

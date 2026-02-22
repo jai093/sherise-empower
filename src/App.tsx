@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth-context";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Signup from "./pages/Signup";
 import Signin from "./pages/Signin";
@@ -13,6 +14,10 @@ import SilverAge from "./pages/dashboard/SilverAge";
 import StoriesPage from "./pages/StoriesPage";
 import ResumeAnalysis from "./pages/ResumeAnalysis";
 import LearningModules from "./pages/LearningModules";
+import JobSearch from "./pages/JobSearch";
+import SilverTutorials from "./pages/SilverTutorials";
+import SosSafety from "./pages/SosSafety";
+import NonTechPaths from "./pages/NonTechPaths";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,12 +33,18 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
-            <Route path="/dashboard/young" element={<YoungPioneers />} />
-            <Route path="/dashboard/mid" element={<MidAge />} />
-            <Route path="/dashboard/silver" element={<SilverAge />} />
-            <Route path="/stories" element={<StoriesPage />} />
-            <Route path="/resume-analysis" element={<ResumeAnalysis />} />
-            <Route path="/learning" element={<LearningModules />} />
+
+            <Route path="/dashboard/young" element={<ProtectedRoute><YoungPioneers /></ProtectedRoute>} />
+            <Route path="/dashboard/mid" element={<ProtectedRoute><MidAge /></ProtectedRoute>} />
+            <Route path="/dashboard/silver" element={<ProtectedRoute><SilverAge /></ProtectedRoute>} />
+            <Route path="/stories" element={<ProtectedRoute><StoriesPage /></ProtectedRoute>} />
+            <Route path="/resume-analysis" element={<ProtectedRoute><ResumeAnalysis /></ProtectedRoute>} />
+            <Route path="/learning" element={<ProtectedRoute><LearningModules /></ProtectedRoute>} />
+            <Route path="/job-search" element={<ProtectedRoute><JobSearch /></ProtectedRoute>} />
+            <Route path="/silver-tutorials" element={<ProtectedRoute><SilverTutorials /></ProtectedRoute>} />
+            <Route path="/sos-safety" element={<ProtectedRoute><SosSafety /></ProtectedRoute>} />
+            <Route path="/non-tech-paths" element={<ProtectedRoute><NonTechPaths /></ProtectedRoute>} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
